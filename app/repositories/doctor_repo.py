@@ -41,19 +41,23 @@ def get_all_approved(db: Session):
 #         doctor.name = user.name if user else "Unknown"
 #     return doctors
 
+
 def search_doctors(db: Session, name: str = None, specialization: str = None):
-    query = db.query(Doctor).filter(Doctor.approved == True)
+    query = db.query(Doctor,User).join(User, Doctor.user_id == User.id).filter(Doctor.approved == True)
     
     if name:
-        query = query.join(User).filter(User.name.ilike(f"%{name}%"))
-    else:
-        query = query.join(User)
+        query = query.filter(User.name.ilike(f"%{name}%"))
     
     if specialization:
         query = query.filter(Doctor.specialization.ilike(f"%{specialization}%"))
-    
-    doctors = query.all()
-    for doctor in doctors:
-        user = db.query(User).filter(User.id == doctor.user_id).first()
-        doctor.name = user.name if user else "Unknown"
-    return doctors
+    return query.all()
+
+
+    # doctors = query.all()
+    # for doctor in doctors:
+    #     user = db.query(User).filter(User.id == doctor.user_id).first()
+    #     doctor.name = user.name if user else "Unknown"
+    # return doctors
+
+
+

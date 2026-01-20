@@ -8,6 +8,7 @@ from app.database import get_db
 from app.schemas.doctor import DoctorSearchResult
 from app.repositories import doctor_repo
 from app.models.user import User
+from app.services import doctor_service
 
 router = APIRouter(prefix="/search", tags=["search"])
 
@@ -30,12 +31,5 @@ def search_doctors(
     specialization: Optional[str] = None, 
     db: Session = Depends(get_db)
 ):
-    """
-    Search doctors by name and/or specialization
-    - name: Doctor name (searches in user names)
-    - specialization: Medical specialization
-    """
-    if not name and not specialization:
-        return doctor_repo.get_all_approved(db)
     
-    return doctor_repo.search_doctors(db, name, specialization)
+    return doctor_service.search_doctors(db, name, specialization)

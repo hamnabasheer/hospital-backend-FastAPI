@@ -18,7 +18,7 @@ router = APIRouter(prefix="/doctor", tags=["Doctor"])
 def register_doctor_endpoint(doctor: DoctorRegister, db: Session = Depends(get_db)):
     return register_doctor(db, doctor.name, doctor.email, doctor.password, doctor.specialization, doctor.experience)
 
-# View my doctor profile
+#view doctor's profile
 @router.get("/me", summary="view doctor profile", response_model=DoctorOut)
 def my_profile(db: Session = Depends(get_db), user = Depends(role_required("doctor"))):
     return doctor_repo.get_by_user(db, user.id)

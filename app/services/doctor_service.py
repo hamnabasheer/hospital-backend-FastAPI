@@ -1,5 +1,6 @@
 # app/services/doctor_service.py
 
+from typing import Optional
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from app.models.doctor import Doctor
@@ -45,3 +46,24 @@ def update_doctor_profile(db: Session, user_id: int, specialization: str = None,
         doctor.experience = experience
     
     return doctor_repo.update(db, doctor)
+
+
+def search_doctors(db: Session, name: Optional[str], specialization: Optional[str]):
+    
+    # If no filter given → return all approved doctors
+    if not name and not specialization:
+        results = doctor_repo.get_all_approved(db)
+    # Otherwise search with filters
+    else:
+        results = doctor_repo.search_doctors(db, name, specialization)
+
+    response = []
+    for doctor, user in results:
+        response.append({
+            "id": doctor.id,
+            "name": user.name,
+            "specialization": doctor.specialization,
+            "experience": doctor.experience
+        })
+
+    return response
