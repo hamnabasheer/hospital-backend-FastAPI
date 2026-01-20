@@ -1,73 +1,11 @@
 # app/services/auth_service.py  
 
 from sqlalchemy.orm import Session
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 
-from app.repositories import user_repo
+from app.repositories import doctor_repo
 from app.models.user import User
-from app.utils.security import hash_password, verify_password, create_access_token
-from app.services.doctor_service import create_doctor_profile
-from app.services.patient_service import create_patient_profile
-
-
-def register_user(db: Session, name: str, email: str, password: str, role: str):
-    if user_repo.get_by_email(db, email):
-        raise HTTPException(status_code=400, detail="Email already exists")
-
-    user = User(
-        name=name,
-        email=email,
-        password=hash_password(password),
-        role=role
-    )
-
-    user = user_repo.create(db, user)
-
-    # 🔹 Auto create profile
-    if role == "doctor":
-        create_doctor_profile(db, user.id, "General", 0)
-
-    if role == "patient":
-        create_patient_profile(db, user.id, 0, "unknown")
-
-    return user
-
-
-def register_doctor(db: Session, name: str, email: str, password: str, specialization: str, experience: int):
-    if user_repo.get_by_email(db, email):
-        raise HTTPException(status_code=400, detail="Email already exists")
-
-    user = User(
-        name=name,
-        email=email,
-        password=hash_password(password),
-        role="doctor"
-    )
-
-    user = user_repo.create(db, user)
-    create_doctor_profile(db, user.id, specialization, experience)
-
-    return user
-
-
-def register_patient(db: Session, name: str, email: str, password: str, age: int, gender: str):
-    if user_repo.get_by_email(db, email):
-        raise HTTPException(status_code=400, detail="Email already exists")
-
-    user = User(
-        name=name,
-        email=email,
-        password=hash_password(password),
-        role="patient"
-    )
-
-    user = user_repo.create(db, user)
-    create_patient_profile(db, user.id, age, gender)
-
-    return user
-
-
-
+from app.utils.security import verify_password, create_access_token
 
 
 
@@ -75,10 +13,16 @@ def login_user(db: Session, email: str, password: str):
     user = db.query(User).filter(User.email == email).first()
 
     if not user:
-        raise HTTPException(status_code=400, detail="Invalid email or password")
+        raise HTTPException(status_code=400, detail="Invalid email")
 
     if not verify_password(password, user.password):
-        raise HTTPException(status_code=400, detail="Invalid name or password")
+        raise HTTPException(status_code=400, detail="Invalid password")
+
+    #  Check if doctor is approved
+    if user.role == "doctor":
+        doctor = doctor_repo.get_by_user(db, user.id)
+        if not doctor or not doctor.approved:
+            raise HTTPException(status_code=403, detail="Doctor not approved yet")
 
     token = create_access_token({
         "user_id": user.id,

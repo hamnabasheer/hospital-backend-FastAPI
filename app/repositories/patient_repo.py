@@ -11,3 +11,11 @@ def create(db: Session, patient: Patient):
 
 def get_by_user(db: Session, user_id: int):
     return db.query(Patient).filter(Patient.user_id == user_id).first()
+
+def update(db: Session, patient: Patient):
+    db.commit()
+    db.refresh(patient)
+    return patient
+
+def get_all(db: Session):
+    return db.query(Patient).all()

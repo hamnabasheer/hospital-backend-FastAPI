@@ -9,3 +9,4 @@ def role_required(role: str):
             raise HTTPException(status_code=403, detail="Not allowed")
         return user
     return checker
+

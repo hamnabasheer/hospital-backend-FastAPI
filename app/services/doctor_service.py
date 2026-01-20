@@ -31,3 +31,17 @@ def register_doctor(db: Session, name: str, email: str, password: str, specializ
     create_doctor_profile(db, user.id, specialization, experience)
 
     return user
+
+
+def update_doctor_profile(db: Session, user_id: int, specialization: str = None, experience: int = None):
+    doctor = doctor_repo.get_by_user(db, user_id)
+    
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Doctor profile not found")
+    
+    if specialization is not None:
+        doctor.specialization = specialization
+    if experience is not None:
+        doctor.experience = experience
+    
+    return doctor_repo.update(db, doctor)

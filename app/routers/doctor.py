@@ -4,9 +4,10 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.schemas.doctor import DoctorRegister
+from app.schemas.doctor import DoctorRegister, DoctorUpdate, DoctorOut
 from app.schemas.user import UserOut
-from app.services.auth_service import register_doctor
+ 
+from app.services.doctor_service import update_doctor_profile, register_doctor
 from app.utils.role import role_required
 from app.repositories import doctor_repo
 
@@ -18,6 +19,12 @@ def register_doctor_endpoint(doctor: DoctorRegister, db: Session = Depends(get_d
     return register_doctor(db, doctor.name, doctor.email, doctor.password, doctor.specialization, doctor.experience)
 
 # View my doctor profile
-@router.get("/me")
+@router.get("/me", response_model=DoctorOut)
 def my_profile(db: Session = Depends(get_db), user = Depends(role_required("doctor"))):
     return doctor_repo.get_by_user(db, user.id)
+
+
+# Update my doctor profile
+@router.put("/update", response_model=DoctorOut)
+def update_profile(update_data: DoctorUpdate, db: Session = Depends(get_db), user = Depends(role_required("doctor"))):
+    return update_doctor_profile(db, user.id, update_data.specialization, update_data.experience)

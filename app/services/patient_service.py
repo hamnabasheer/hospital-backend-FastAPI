@@ -31,3 +31,17 @@ def register_patient(db: Session, name: str, email: str, password: str, age: int
     create_patient_profile(db, user.id, age, gender)
 
     return user
+
+
+def update_patient_profile(db: Session, user_id: int, age: int = None, gender: str = None):
+    patient = patient_repo.get_by_user(db, user_id)
+    
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient profile not found")
+    
+    if age is not None:
+        patient.age = age
+    if gender is not None:
+        patient.gender = gender
+    
+    return patient_repo.update(db, patient)

@@ -17,3 +17,8 @@ def get_all(db: Session):
 
 def get_by_id(db: Session, doctor_id: int):
     return db.query(Doctor).filter(Doctor.id == doctor_id).first()
+
+def update(db: Session, doctor: Doctor):
+    db.commit()
+    db.refresh(doctor)
+    return doctor
