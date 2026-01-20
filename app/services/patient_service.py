@@ -1,8 +1,11 @@
 # app/services/patient_service.py
 
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from app.models.patient import Patient
-from app.repositories import patient_repo
+from app.models.user import User
+from app.repositories import patient_repo, user_repo
+from app.utils.security import hash_password
 
 def create_patient_profile(db: Session, user_id: int, age: int, gender: str):
     patient = Patient(
@@ -11,3 +14,20 @@ def create_patient_profile(db: Session, user_id: int, age: int, gender: str):
         gender=gender
     )
     return patient_repo.create(db, patient)
+
+
+def register_patient(db: Session, name: str, email: str, password: str, age: int, gender: str):
+    if user_repo.get_by_email(db, email):
+        raise HTTPException(status_code=400, detail="Email already exists")
+
+    user = User(
+        name=name,
+        email=email,
+        password=hash_password(password),
+        role="patient"
+    )
+
+    user = user_repo.create(db, user)
+    create_patient_profile(db, user.id, age, gender)
+
+    return user

@@ -33,6 +33,44 @@ def register_user(db: Session, name: str, email: str, password: str, role: str):
     return user
 
 
+def register_doctor(db: Session, name: str, email: str, password: str, specialization: str, experience: int):
+    if user_repo.get_by_email(db, email):
+        raise HTTPException(status_code=400, detail="Email already exists")
+
+    user = User(
+        name=name,
+        email=email,
+        password=hash_password(password),
+        role="doctor"
+    )
+
+    user = user_repo.create(db, user)
+    create_doctor_profile(db, user.id, specialization, experience)
+
+    return user
+
+
+def register_patient(db: Session, name: str, email: str, password: str, age: int, gender: str):
+    if user_repo.get_by_email(db, email):
+        raise HTTPException(status_code=400, detail="Email already exists")
+
+    user = User(
+        name=name,
+        email=email,
+        password=hash_password(password),
+        role="patient"
+    )
+
+    user = user_repo.create(db, user)
+    create_patient_profile(db, user.id, age, gender)
+
+    return user
+
+
+
+
+
+
 def login_user(db: Session, email: str, password: str):
     user = db.query(User).filter(User.email == email).first()
 
@@ -40,7 +78,7 @@ def login_user(db: Session, email: str, password: str):
         raise HTTPException(status_code=400, detail="Invalid email or password")
 
     if not verify_password(password, user.password):
-        raise HTTPException(status_code=400, detail="Invalid email or password")
+        raise HTTPException(status_code=400, detail="Invalid name or password")
 
     token = create_access_token({
         "user_id": user.id,

@@ -1,10 +1,14 @@
 # app/schemas/doctor.py
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
-class DoctorCreate(BaseModel):
+class DoctorRegister(BaseModel):
+    name: str
+    email: EmailStr
+    password: str
     specialization: str
     experience: int
+
 
 class DoctorOut(BaseModel):
     id: int

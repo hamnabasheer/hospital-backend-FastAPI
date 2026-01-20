@@ -7,7 +7,7 @@ from app.routers import auth, doctor, patient, admin
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Hospital Appointment & Medical Records API")
+app = FastAPI(title="Hospital API")
 
 app.include_router(auth.router)
 app.include_router(doctor.router)

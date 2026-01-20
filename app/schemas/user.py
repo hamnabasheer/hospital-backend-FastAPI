@@ -8,6 +8,7 @@ class UserCreate(BaseModel):
     password: str
     role: str   # patient / doctor
 
+
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
