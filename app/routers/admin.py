@@ -11,19 +11,19 @@ from app.repositories import doctor_repo, patient_repo
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
 
-# View all doctors
-@router.get("/doctors")
+#admin view doctors
+@router.get("/doctors", summary="view all doctors")
 def all_doctors(db: Session = Depends(get_db), user = Depends(role_required("admin"))):
     return doctor_repo.get_all(db)
 
 
-# Approve doctor
-@router.put("/approve-doctor/{doctor_id}")
+#admin approves doctor
+@router.put("/approve-doctor/{doctor_id}", summary="approve doctor")
 def approve(doctor_id: int, db: Session = Depends(get_db), user = Depends(role_required("admin"))):
     return approve_doctor(db, doctor_id)
 
 
-
-@router.get("/patients")
+#admin view patients
+@router.get("/patients", summary="view all patients")
 def all_patients(db: Session = Depends(get_db), user = Depends(role_required("admin"))):
     return patient_repo.get_all(db)

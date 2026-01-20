@@ -25,3 +25,14 @@ class DoctorOut(BaseModel):
     model_config = {
         "from_attributes": True
     }
+
+
+class DoctorSearchResult(BaseModel):
+    name: str
+    specialization: str
+    experience: int
+    approved: bool
+
+    model_config = {
+        "from_attributes": True
+    }

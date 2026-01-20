@@ -14,17 +14,17 @@ from app.repositories import doctor_repo
 router = APIRouter(prefix="/doctor", tags=["Doctor"])
 
 
-@router.post("/register/doctor", response_model=UserOut)
+@router.post("/register/doctor", summary="Register a new doctor", response_model=UserOut)
 def register_doctor_endpoint(doctor: DoctorRegister, db: Session = Depends(get_db)):
     return register_doctor(db, doctor.name, doctor.email, doctor.password, doctor.specialization, doctor.experience)
 
 # View my doctor profile
-@router.get("/me", response_model=DoctorOut)
+@router.get("/me", summary="view doctor profile", response_model=DoctorOut)
 def my_profile(db: Session = Depends(get_db), user = Depends(role_required("doctor"))):
     return doctor_repo.get_by_user(db, user.id)
 
 
 # Update my doctor profile
-@router.put("/update", response_model=DoctorOut)
+@router.put("/update", summary="update doctor profile", response_model=DoctorOut)
 def update_profile(update_data: DoctorUpdate, db: Session = Depends(get_db), user = Depends(role_required("doctor"))):
     return update_doctor_profile(db, user.id, update_data.specialization, update_data.experience)
